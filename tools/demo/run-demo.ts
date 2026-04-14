@@ -9,7 +9,7 @@
  * raw-to-domain mapper, standard + interactive use cases, a manual patch to
  * `AcknowledgePlopDemoInteractionPort` plus an **Immer** adapter on `driven-demo-clock`, infra lib
  * package, add use-case port dependency, and non-interactive composition wiring for
- * `RecordLineItem` (26 steps; exercises every generator across the layer plopfiles in `tools/plop/`).
+ * `RecordLineItem` (27 steps; exercises every generator across the layer plopfiles in `tools/plop/`).
  *
  * Usage (from repo root):
  *   pnpm demo:scaffold
@@ -80,20 +80,20 @@ async function main(): Promise<void> {
   registerInfrastructureGenerators(plop);
   registerCompositionGenerators(plop);
 
-  console.log("\n1/26 feature-core …");
+  console.log("\n1/27 feature-core …");
   await runGenerator(plop, "feature-core", {
     featureName: DEMO_FEATURE_NAME,
     packages: ["domain", "application"],
   });
 
-  console.log("\n2/26 feature-domain-entity …");
+  console.log("\n2/27 feature-domain-entity …");
   await runGenerator(plop, "feature-domain-entity", {
     domainPackageRel: DEMO_DOMAIN_REL,
     entityName: "LineItem",
     addNotFoundError: true,
   });
 
-  console.log("\n3/26 feature-domain-value-object (single-value) …");
+  console.log("\n3/27 feature-domain-value-object (single-value) …");
   await runGenerator(plop, "feature-domain-value-object", {
     domainPackageRel: DEMO_DOMAIN_REL,
     valueObjectName: "TaxRate",
@@ -101,14 +101,14 @@ async function main(): Promise<void> {
     singleValuePrimitive: "string",
   });
 
-  console.log("\n4/26 feature-domain-value-object (composite) …");
+  console.log("\n4/27 feature-domain-value-object (composite) …");
   await runGenerator(plop, "feature-domain-value-object", {
     domainPackageRel: DEMO_DOMAIN_REL,
     valueObjectName: "Money",
     valueObjectKind: "composite",
   });
 
-  console.log("\n5/26 feature-domain-entity-add-vo-field …");
+  console.log("\n5/27 feature-domain-entity-add-vo-field …");
   await runGenerator(plop, "feature-domain-entity-add-vo-field", {
     domainPackageRel: DEMO_DOMAIN_REL,
     entityName: "LineItem",
@@ -116,35 +116,43 @@ async function main(): Promise<void> {
     voSelection: { voClass: "TaxRate", source: "local" },
   });
 
-  console.log("\n6/26 feature-domain-error (custom) …");
+  console.log("\n6/27 feature-domain-error (custom) …");
   await runGenerator(plop, "feature-domain-error", {
     domainPackageRel: DEMO_DOMAIN_REL,
     errorKind: "custom",
     errorName: "InvalidQuantity",
   });
 
-  console.log("\n7/26 feature-domain-error (not-found) …");
+  console.log("\n7/27 feature-domain-error (not-found) …");
   await runGenerator(plop, "feature-domain-error", {
     domainPackageRel: DEMO_DOMAIN_REL,
     errorKind: "not-found",
     entityPascal: "Order",
   });
 
-  console.log("\n8/26 feature-domain-service …");
+  console.log("\n8/27 feature-domain-service …");
   await runGenerator(plop, "feature-domain-service", {
     domainPackageRel: DEMO_DOMAIN_REL,
     selectedEntities: ["local:LineItem"],
     serviceName: "LineItemTotals",
   });
 
-  console.log("\n9/26 feature-application-entity-to-dto-mapper …");
+  console.log("\n9/27 feature-application-entity-to-dto-mapper …");
   await runGenerator(plop, "feature-application-entity-to-dto-mapper", {
     domainPackageRel: DEMO_DOMAIN_REL,
     entityName: "LineItem",
     overwrite: false,
   });
 
-  console.log("\n10/26 feature-application-port (repository) …");
+  console.log("\n10/27 feature-application-entity-to-dto-mapper (LineItem variant: custom) …");
+  await runGenerator(plop, "feature-application-entity-to-dto-mapper", {
+    domainPackageRel: DEMO_DOMAIN_REL,
+    entityName: "LineItem",
+    mapperVariantKebab: "custom",
+    overwrite: false,
+  });
+
+  console.log("\n11/27 feature-application-port (repository) …");
   await runGenerator(plop, "feature-application-port", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     portKind: "repository",
@@ -156,7 +164,7 @@ async function main(): Promise<void> {
     overwrite: false,
   });
 
-  console.log("\n11/26 feature-application-port (interaction) …");
+  console.log("\n12/27 feature-application-port (interaction) …");
   await runGenerator(plop, "feature-application-port", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     portKind: "interaction",
@@ -164,7 +172,7 @@ async function main(): Promise<void> {
     overwrite: false,
   });
 
-  console.log("\n12/26 feature-application-port (plain / other) …");
+  console.log("\n13/27 feature-application-port (plain / other) …");
   await runGenerator(plop, "feature-application-port", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     portKind: "other",
@@ -172,38 +180,38 @@ async function main(): Promise<void> {
     overwrite: false,
   });
 
-  console.log("\n13/26 feature-composition-app (web) …");
+  console.log("\n14/27 feature-composition-app (web) …");
   await runGenerator(plop, "feature-composition-app", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     compositionAppKebab: "web",
   });
 
-  console.log("\n14/26 feature-composition-wire-dataloader-registry …");
+  console.log("\n15/27 feature-composition-wire-dataloader-registry …");
   await runGenerator(plop, "feature-composition-wire-dataloader-registry", {
     compositionPackageRel: DEMO_COMPOSITION_WEB_REL,
     propName: "loaders",
   });
 
-  console.log("\n15/26 feature-composition-wire-http-client …");
+  console.log("\n16/27 feature-composition-wire-http-client …");
   await runGenerator(plop, "feature-composition-wire-http-client", {
     compositionPackageRel: DEMO_COMPOSITION_WEB_REL,
     propName: "httpClient",
   });
 
-  console.log("\n16/26 feature-infrastructure-driven-package (demo-clock) …");
+  console.log("\n17/27 feature-infrastructure-driven-package (demo-clock) …");
   await runGenerator(plop, "feature-infrastructure-driven-package", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     drivenSuffix: "demo-clock",
   });
 
-  console.log("\n17/26 feature-infrastructure-driven-package (line-item) …");
+  console.log("\n18/27 feature-infrastructure-driven-package (line-item) …");
   await runGenerator(plop, "feature-infrastructure-driven-package", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     drivenSuffix: "line-item",
   });
 
   console.log(
-    "\n18/26 feature-infrastructure-driven-port-adapter (DemoClockPort → driven-demo-clock) …"
+    "\n19/27 feature-infrastructure-driven-port-adapter (DemoClockPort → driven-demo-clock) …"
   );
   await runGenerator(plop, "feature-infrastructure-driven-port-adapter", {
     applicationPackageRel: DEMO_APPLICATION_REL,
@@ -213,7 +221,7 @@ async function main(): Promise<void> {
   });
 
   console.log(
-    "\n19/26 feature-infrastructure-driven-repository-port-adapter (LineItemRepositoryPort → driven-line-item) …"
+    "\n20/27 feature-infrastructure-driven-repository-port-adapter (LineItemRepositoryPort → driven-line-item) …"
   );
   await runGenerator(plop, "feature-infrastructure-driven-repository-port-adapter", {
     applicationPackageRel: DEMO_APPLICATION_REL,
@@ -223,7 +231,7 @@ async function main(): Promise<void> {
     adapterBaseName: "",
   });
 
-  console.log("\n20/26 feature-infrastructure-raw-to-domain-entity-mapper …");
+  console.log("\n21/27 feature-infrastructure-raw-to-domain-entity-mapper …");
   await runGenerator(plop, "feature-infrastructure-raw-to-domain-entity-mapper", {
     domainPackageRel: DEMO_DOMAIN_REL,
     entityName: "LineItem",
@@ -231,14 +239,14 @@ async function main(): Promise<void> {
     rawName: "PersistenceLineItemRow",
   });
 
-  console.log("\n21/26 feature-application-use-case — standard …");
+  console.log("\n22/27 feature-application-use-case — standard …");
   await runGenerator(plop, "feature-application-use-case", {
     useCaseKind: "standard",
     applicationPackageRel: DEMO_APPLICATION_REL,
     useCaseName: "RecordLineItem",
   });
 
-  console.log("\n22/26 feature-application-use-case — interactive …");
+  console.log("\n23/27 feature-application-use-case — interactive …");
   await runGenerator(plop, "feature-application-use-case", {
     useCaseKind: "interactive",
     applicationPackageRel: DEMO_APPLICATION_REL,
@@ -246,7 +254,7 @@ async function main(): Promise<void> {
   });
 
   console.log(
-    "\n23/26 patch AcknowledgePlopDemo interaction port + feature-infrastructure-driven-immer-interaction-adapter …"
+    "\n24/27 patch AcknowledgePlopDemo interaction port + feature-infrastructure-driven-immer-interaction-adapter …"
   );
   const acknowledgeInteractionPortPath = path.join(
     repoRoot,
@@ -272,14 +280,14 @@ async function main(): Promise<void> {
     adapterBaseName: "",
   });
 
-  console.log("\n24/26 feature-infrastructure-lib-package …");
+  console.log("\n25/27 feature-infrastructure-lib-package …");
   await runGenerator(plop, "feature-infrastructure-lib-package", {
     infrastructureLibScope: "feature",
     applicationPackageRel: DEMO_APPLICATION_REL,
     libSuffix: "demo-formatting",
   });
 
-  console.log("\n25/26 feature-application-add-dependency-to-use-case …");
+  console.log("\n26/27 feature-application-add-dependency-to-use-case …");
   await runGenerator(plop, "feature-application-add-dependency-to-use-case", {
     applicationSliceRel: DEMO_APPLICATION_REL,
     useCaseSlice: "standard|RecordLineItem",
@@ -288,7 +296,7 @@ async function main(): Promise<void> {
     portPropertyName: "lineItemRepository",
   });
 
-  console.log("\n26/26 feature-composition-wire-use-case (non-interactive) …");
+  console.log("\n27/27 feature-composition-wire-use-case (non-interactive) …");
   await runGenerator(plop, "feature-composition-wire-use-case", {
     applicationPackageRel: DEMO_APPLICATION_REL,
     useCaseSlice: "standard|RecordLineItem",

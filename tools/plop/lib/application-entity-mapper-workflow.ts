@@ -31,6 +31,11 @@ export interface AppendApplicationEntityMapperWorkflowArgs {
   /** Same as entity generator input / mapper generator (PascalCase or free text; codegen normalizes). */
   entityName: string;
   allowOverwrite: boolean;
+  /**
+   * Optional kebab-case suffix: mapper files become `${entityKebab}-${variant}.mapper.ts`
+   * and export `map${toPascalCase(`${entityKebab}-${variant}`)}ToDTO`. Empty = default single mapper per entity.
+   */
+  mapperVariantKebab?: string;
 }
 
 /**
@@ -40,7 +45,7 @@ export function appendApplicationEntityMapperWorkflow(
   actions: (ActionType | (() => string))[],
   opts: AppendApplicationEntityMapperWorkflowArgs
 ) {
-  const { repoRoot, domainPackageRel, entityName, allowOverwrite } = opts;
+  const { repoRoot, domainPackageRel, entityName, allowOverwrite, mapperVariantKebab } = opts;
   const rel = String(domainPackageRel ?? "");
   const applicationRel = applicationPackageRelFromDomainRel(rel);
   const appPkgJson = path.join(repoRoot, ...applicationRel.split("/"), "package.json");
@@ -52,24 +57,37 @@ export function appendApplicationEntityMapperWorkflow(
 
   const domainNpmName = readDomainPackageJsonName(repoRoot, rel);
   const entityKebab = toKebabCase(entityName);
+  const variant = String(mapperVariantKebab ?? "").trim();
+  if (variant && !/^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(variant)) {
+    throw new Error(
+      `Mapper variant must be kebab-case (e.g. "summary", "audit-trail"); got "${variant}".`
+    );
+  }
+  const mapperModuleKebab = variant ? `${entityKebab}-${variant}` : entityKebab;
 
   actions.push(() => {
     const dtosDir = path.join(repoRoot, ...applicationRel.split("/"), "dtos");
     const mappersDir = path.join(repoRoot, ...applicationRel.split("/"), "mappers");
     const dtoFile = path.join(dtosDir, `${entityKebab}.dto.ts`);
-    const mapperFile = path.join(mappersDir, `${entityKebab}.mapper.ts`);
-    const testFile = path.join(mappersDir, `${entityKebab}.mapper.test.ts`);
+    const mapperFile = path.join(mappersDir, `${mapperModuleKebab}.mapper.ts`);
+    const testFile = path.join(mappersDir, `${mapperModuleKebab}.mapper.test.ts`);
     const triple: [string, string][] = [
       [dtoFile, "DTO"],
       [mapperFile, "Mapper"],
       [testFile, "Mapper test"],
     ];
-    const existing = triple.filter(([p]) => fs.existsSync(p));
-    if (existing.length > 0 && !allowOverwrite) {
-      const relPaths = existing.map(([p, label]) => `${label}: ${path.relative(repoRoot, p)}`);
-      throw new Error(
-        `${relPaths.join("; ")}.\n` + "Re-run and allow overwrite, or delete those files first."
-      );
+    if (!allowOverwrite) {
+      const blocking = variant
+        ? triple.filter(
+            ([p, label]) => (label === "Mapper" || label === "Mapper test") && fs.existsSync(p)
+          )
+        : triple.filter(([p]) => fs.existsSync(p));
+      if (blocking.length > 0) {
+        const msg = blocking
+          .map(([p, label]) => `${label}: ${path.relative(repoRoot, p)}`)
+          .join("; ");
+        throw new Error(`${msg}.\n` + "Re-run and allow overwrite, or delete those files first.");
+      }
     }
     return "";
   });
@@ -111,14 +129,15 @@ export function appendApplicationEntityMapperWorkflow(
     const dtosDir = path.join(repoRoot, ...applicationRel.split("/"), "dtos");
     const mappersDir = path.join(repoRoot, ...applicationRel.split("/"), "mappers");
     const dtoFile = path.join(dtosDir, `${entityKebab}.dto.ts`);
-    const mapperFile = path.join(mappersDir, `${entityKebab}.mapper.ts`);
-    const testFile = path.join(mappersDir, `${entityKebab}.mapper.test.ts`);
+    const mapperFile = path.join(mappersDir, `${mapperModuleKebab}.mapper.ts`);
+    const testFile = path.join(mappersDir, `${mapperModuleKebab}.mapper.test.ts`);
     const runCodegen = () =>
       generateApplicationEntityMapperSources({
         repoRoot,
         domainPackageRel: rel,
         domainNpmName,
         entityBasePascal: String(entityName ?? ""),
+        mapperModuleKebab,
       });
     let bundle: ReturnType<typeof generateApplicationEntityMapperSources>;
     try {
@@ -158,7 +177,7 @@ export function appendApplicationEntityMapperWorkflow(
       const defaultConstName = applicationMappersBarrelConstName(featureSeg);
       return syncApplicationMappersIndexBarrel(file, {
         defaultConstName,
-        entityKebab,
+        mapperModuleKebab,
       });
     },
   });

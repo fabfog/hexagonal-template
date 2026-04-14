@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   applicationMappersBarrelConstName,
-  entityKebabToMapperFnName,
   formatApplicationMappersIndexBarrel,
+  mapperExportNameFromModuleKebab,
   parseApplicationMappersIndexEntries,
   syncApplicationMappersIndexBarrel,
 } from "./application-mappers-index-barrel.ts";
@@ -13,9 +13,13 @@ describe("applicationMappersBarrelConstName", () => {
   });
 });
 
-describe("entityKebabToMapperFnName", () => {
-  it("matches codegen naming", () => {
-    expect(entityKebabToMapperFnName("line-item")).toBe("mapLineItemToDTO");
+describe("mapperExportNameFromModuleKebab", () => {
+  it("default entity module matches legacy naming", () => {
+    expect(mapperExportNameFromModuleKebab("line-item")).toBe("mapLineItemToDTO");
+  });
+
+  it("supports variant suffix in module kebab", () => {
+    expect(mapperExportNameFromModuleKebab("line-item-custom")).toBe("mapLineItemCustomToDTO");
   });
 });
 
@@ -23,7 +27,7 @@ describe("syncApplicationMappersIndexBarrel", () => {
   it("creates a barrel from an empty export", () => {
     const out = syncApplicationMappersIndexBarrel("export {};\n", {
       defaultConstName: "PlopDemoMappers",
-      entityKebab: "line-item",
+      mapperModuleKebab: "line-item",
     });
     expect(out).toContain("import { mapLineItemToDTO } from './line-item.mapper';");
     expect(out).toContain("export const PlopDemoMappers = {");
@@ -34,7 +38,7 @@ describe("syncApplicationMappersIndexBarrel", () => {
     const input = `export * from './line-item.mapper';\n`;
     const out = syncApplicationMappersIndexBarrel(input, {
       defaultConstName: "PlopDemoMappers",
-      entityKebab: "order",
+      mapperModuleKebab: "order",
     });
     expect(out).toContain("import { mapLineItemToDTO } from './line-item.mapper';");
     expect(out).toContain("import { mapOrderToDTO } from './order.mapper';");
@@ -50,30 +54,30 @@ export const CustomMappers = {
 `;
     const out = syncApplicationMappersIndexBarrel(input, {
       defaultConstName: "PlopDemoMappers",
-      entityKebab: "invoice",
+      mapperModuleKebab: "invoice",
     });
     expect(out).toContain("export const CustomMappers = {");
     expect(out).toContain("mapInvoiceToDTO");
     expect(out).not.toContain("PlopDemoMappers");
   });
 
-  it("is idempotent for the same entity", () => {
+  it("is idempotent for the same module", () => {
     const once = syncApplicationMappersIndexBarrel("export {};\n", {
       defaultConstName: "FooMappers",
-      entityKebab: "a",
+      mapperModuleKebab: "a",
     });
     const twice = syncApplicationMappersIndexBarrel(once, {
       defaultConstName: "FooMappers",
-      entityKebab: "a",
+      mapperModuleKebab: "a",
     });
     expect(twice).toBe(once);
   });
 });
 
 describe("formatApplicationMappersIndexBarrel", () => {
-  it("sorts entries by entity kebab", () => {
+  it("sorts entries by mapper module kebab", () => {
     const out = formatApplicationMappersIndexBarrel(
-      [{ entityKebab: "zebra" }, { entityKebab: "apple" }],
+      [{ mapperModuleKebab: "zebra" }, { mapperModuleKebab: "apple" }],
       "XMappers"
     );
     expect(out.indexOf("apple")).toBeLessThan(out.indexOf("zebra"));

@@ -17,6 +17,8 @@ export interface MapperCodegenField {
 interface BuildMapperSourceArgs {
   entityPascal: string;
   entityKebab: string;
+  /** File base without `.mapper`, e.g. `line-item` or `line-item-custom`. */
+  mapperModuleKebab: string;
   /** Full module id, e.g. `@features/foo-domain/entities`. */
   domainEntitiesModule: string;
 }
@@ -27,8 +29,7 @@ interface BuildMapperTestField {
 }
 
 interface BuildMapperTestSourceArgs {
-  entityPascal: string;
-  entityKebab: string;
+  mapperModuleKebab: string;
   fields: BuildMapperTestField[];
   importAcc: Map<string, Set<string>>;
   entityConstruction: string;
@@ -41,6 +42,11 @@ export interface GenerateApplicationEntityMapperSourcesOpts {
   /** e.g. `@features/plop-demo-domain` */
   domainNpmName: string;
   entityBasePascal: string;
+  /**
+   * Mapper file base without `.mapper` (e.g. `line-item-audit`).
+   * Defaults to the entity kebab (`line-item` → `mapLineItemToDTO`).
+   */
+  mapperModuleKebab?: string;
 }
 /**
  * @param {string} absDir
@@ -455,7 +461,7 @@ function buildEntityTestConstruction(
  */
 function formatTestImportLines(
   importAcc: Map<string, Set<string>>,
-  entityKebab: string,
+  mapperModuleKebab: string,
   fn: string
 ) {
   const out: string[] = [];
@@ -465,8 +471,8 @@ function formatTestImportLines(
     const names = [...(importAcc.get(mod) ?? new Set<string>())].sort((a, b) => a.localeCompare(b));
     out.push(`import { ${names.join(", ")} } from "${mod}";`);
   }
-  if (entityKebab && fn) {
-    out.push(`import { ${fn} } from "./${entityKebab}.mapper";`);
+  if (mapperModuleKebab && fn) {
+    out.push(`import { ${fn} } from "./${mapperModuleKebab}.mapper";`);
   }
   return out;
 }
@@ -654,9 +660,9 @@ export type ${name} = Plain<${entityClass}>;
  * }} args
  */
 function buildMapperSource(args: BuildMapperSourceArgs) {
-  const { entityPascal, entityKebab, domainEntitiesModule } = args;
+  const { entityPascal, entityKebab, mapperModuleKebab, domainEntitiesModule } = args;
   const entityClass = `${entityPascal}Entity`;
-  const fn = `map${entityPascal}ToDTO`;
+  const fn = `map${toPascalCase(mapperModuleKebab)}ToDTO`;
   const dtoType = `${entityPascal}DTO`;
   return `import type { ${entityClass} } from '${domainEntitiesModule}';
 import type { ${dtoType} } from '../dtos/${entityKebab}.dto';
@@ -679,9 +685,9 @@ export function ${fn}(entity: ${entityClass}): ${dtoType} {
  * }} args
  */
 function buildMapperTestSource(args: BuildMapperTestSourceArgs) {
-  const { entityPascal, entityKebab, fields, importAcc, entityConstruction } = args;
-  const fn = `map${entityPascal}ToDTO`;
-  const importLines = formatTestImportLines(importAcc, entityKebab, fn);
+  const { mapperModuleKebab, fields, importAcc, entityConstruction } = args;
+  const fn = `map${toPascalCase(mapperModuleKebab)}ToDTO`;
+  const importLines = formatTestImportLines(importAcc, mapperModuleKebab, fn);
   const expectedBody = fields.map((f) => `      ${f.name}: ${f.expectedLiteral},`).join("\n");
   const expectedInner = fields.length === 0 ? "" : `\n${expectedBody}\n    `;
   const itTitle = "maps entity fields to the DTO";
@@ -708,6 +714,7 @@ function generateApplicationEntityMapperSources(opts: GenerateApplicationEntityM
   const { repoRoot, domainPackageRel, domainNpmName, entityBasePascal } = opts;
   const entityPascal = toPascalCase(String(entityBasePascal || "").trim());
   const entityKebab = toKebabCase(entityBasePascal);
+  const mapperModuleKebab = (opts.mapperModuleKebab ?? entityKebab).trim() || entityKebab;
   const entityClassName = `${entityPascal}Entity`;
   const domainPackageDir = path.join(repoRoot, ...domainPackageRel.split("/"));
   const entityPath = path.join(domainPackageDir, "entities", `${entityKebab}.entity.ts`);
@@ -800,6 +807,7 @@ function generateApplicationEntityMapperSources(opts: GenerateApplicationEntityM
   const mapperSource = buildMapperSource({
     entityPascal,
     entityKebab,
+    mapperModuleKebab,
     domainEntitiesModule,
   });
   let testConstruction;
@@ -822,8 +830,7 @@ function generateApplicationEntityMapperSources(opts: GenerateApplicationEntityM
     );
   }
   const testSource = buildMapperTestSource({
-    entityPascal,
-    entityKebab,
+    mapperModuleKebab,
     fields,
     importAcc: testConstruction.importAcc,
     entityConstruction: testConstruction.entityConstruction,

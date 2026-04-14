@@ -13,7 +13,7 @@ const repoRoot = getRepoRoot();
 export default function registerFeatureApplicationEntityToDtoMapperGenerator(plop: NodePlopAPI) {
   plop.setGenerator("feature-application-entity-to-dto-mapper", {
     description:
-      "DTO type alias (`Plain<Entity>`) + mapXToDTO + test from a domain entity (@features/*-application). Updates `mappers/index.ts` with a `{FeaturePascal}Mappers` barrel object. Use overwrite to re-sync; default refuses if files already exist.",
+      "DTO type alias (`Plain<Entity>`) + mapXToDTO + test from a domain entity (@features/*-application). Optional kebab **variant** adds a second mapper file per entity (`line-item-audit.mapper.ts`). Updates `mappers/index.ts` barrel. Use overwrite to re-sync; default refuses if target files already exist.",
     prompts: [
       {
         type: "list",
@@ -37,6 +37,21 @@ export default function registerFeatureApplicationEntityToDtoMapperGenerator(plo
           getDomainEntitySelectChoices(repoRoot, String(answers.domainPackageRel ?? "")),
       },
       {
+        type: "input",
+        name: "mapperVariantKebab",
+        message:
+          "Optional mapper variant (kebab-case, e.g. `summary` → `…-summary.mapper.ts` + `map…SummaryToDTO`). Leave empty for the default single mapper:",
+        filter: (v: unknown) => String(v ?? "").trim(),
+        validate: (value: unknown) => {
+          const s = String(value ?? "").trim();
+          if (!s) return true;
+          return (
+            /^[a-z][a-z0-9]*(-[a-z0-9]+)*$/.test(s) ||
+            'Use lowercase kebab-case (e.g. "audit", "line-summary").'
+          );
+        },
+      },
+      {
         type: "confirm",
         name: "overwrite",
         default: true,
@@ -46,7 +61,7 @@ export default function registerFeatureApplicationEntityToDtoMapperGenerator(plo
     ],
     actions: (data?: Answers) => {
       if (!data) return [];
-      const { domainPackageRel, entityName, overwrite } = data;
+      const { domainPackageRel, entityName, overwrite, mapperVariantKebab } = data;
       const rel = String(domainPackageRel ?? "");
       const applicationRel = applicationPackageRelFromDomainRel(rel);
       const appPkgJson = path.join(repoRoot, ...applicationRel.split("/"), "package.json");
@@ -62,6 +77,7 @@ export default function registerFeatureApplicationEntityToDtoMapperGenerator(plo
         domainPackageRel: rel,
         entityName: String(entityName ?? ""),
         allowOverwrite: overwrite === true,
+        mapperVariantKebab: String(mapperVariantKebab ?? "").trim() || undefined,
       });
       return actions;
     },

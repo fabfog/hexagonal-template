@@ -5,12 +5,12 @@ export function applicationMappersBarrelConstName(featureFolderKebab: string): s
   return `${toPascalCase(featureFolderKebab)}Mappers`;
 }
 
-/** `line-item` → `mapLineItemToDTO` (matches entity-to-dto-map-codegen). */
-export function entityKebabToMapperFnName(entityKebab: string): string {
-  return `map${toPascalCase(entityKebab)}ToDTO`;
+/** `line-item` → `mapLineItemToDTO`; `line-item-summary` → `mapLineItemSummaryToDTO`. */
+export function mapperExportNameFromModuleKebab(mapperModuleKebab: string): string {
+  return `map${toPascalCase(mapperModuleKebab)}ToDTO`;
 }
 
-function mapperFnNameToEntityKebab(fn: string): string {
+function mapperFnNameToModuleKebab(fn: string): string {
   const inner = fn.replace(/^map/, "").replace(/ToDTO$/, "");
   return toKebabCase(inner);
 }
@@ -37,34 +37,35 @@ function parseExistingConst(file: string): { name: string; body: string } | null
 }
 
 export interface MappersIndexEntry {
-  entityKebab: string;
+  /** File base without `.mapper`, e.g. `line-item` or `line-item-custom`. */
+  mapperModuleKebab: string;
 }
 
 /**
  * Collect mapper modules already declared in `mappers/index.ts` (barrel object, imports, or legacy `export *`).
  */
 export function parseApplicationMappersIndexEntries(file: string): MappersIndexEntry[] {
-  const byKebab = new Map<string, MappersIndexEntry>();
+  const byModule = new Map<string, MappersIndexEntry>();
 
   for (const m of file.matchAll(EXPORT_STAR)) {
-    const kebab = m[1];
-    if (kebab) byKebab.set(kebab, { entityKebab: kebab });
+    const mod = m[1];
+    if (mod) byModule.set(mod, { mapperModuleKebab: mod });
   }
 
   for (const m of file.matchAll(IMPORT_LINE)) {
-    const pathKebab = m[2];
-    if (pathKebab) byKebab.set(pathKebab, { entityKebab: pathKebab });
+    const pathMod = m[2];
+    if (pathMod) byModule.set(pathMod, { mapperModuleKebab: pathMod });
   }
 
   const constBlock = parseExistingConst(file);
   if (constBlock) {
     for (const fn of parseBarrelObjectKeys(constBlock.body)) {
-      const kebab = mapperFnNameToEntityKebab(fn);
-      byKebab.set(kebab, { entityKebab: kebab });
+      const mod = mapperFnNameToModuleKebab(fn);
+      byModule.set(mod, { mapperModuleKebab: mod });
     }
   }
 
-  return [...byKebab.values()];
+  return [...byModule.values()];
 }
 
 export function resolveApplicationMappersBarrelConstName(
@@ -80,13 +81,15 @@ export function formatApplicationMappersIndexBarrel(
   entries: MappersIndexEntry[],
   constName: string
 ): string {
-  const sorted = [...entries].sort((a, b) => a.entityKebab.localeCompare(b.entityKebab));
+  const sorted = [...entries].sort((a, b) =>
+    a.mapperModuleKebab.localeCompare(b.mapperModuleKebab)
+  );
   const importLines = sorted.map((e) => {
-    const fn = entityKebabToMapperFnName(e.entityKebab);
-    return `import { ${fn} } from './${e.entityKebab}.mapper';`;
+    const fn = mapperExportNameFromModuleKebab(e.mapperModuleKebab);
+    return `import { ${fn} } from './${e.mapperModuleKebab}.mapper';`;
   });
   const props = sorted.map((e) => {
-    const fn = entityKebabToMapperFnName(e.entityKebab);
+    const fn = mapperExportNameFromModuleKebab(e.mapperModuleKebab);
     return `  ${fn},`;
   });
   return `${importLines.join("\n")}\n\nexport const ${constName} = {\n${props.join("\n")}\n};\n`;
@@ -97,13 +100,13 @@ export function formatApplicationMappersIndexBarrel(
  */
 export function syncApplicationMappersIndexBarrel(
   file: string,
-  opts: { defaultConstName: string; entityKebab: string }
+  opts: { defaultConstName: string; mapperModuleKebab: string }
 ): string {
   const cleaned = file.replace(/^export\s*{\s*}\s*;?\s*$/m, "").trimEnd();
   const base = cleaned.length > 0 ? cleaned : "";
   const entries = parseApplicationMappersIndexEntries(base);
-  const byKebab = new Map(entries.map((e) => [e.entityKebab, e]));
-  byKebab.set(opts.entityKebab, { entityKebab: opts.entityKebab });
+  const byModule = new Map(entries.map((e) => [e.mapperModuleKebab, e]));
+  byModule.set(opts.mapperModuleKebab, { mapperModuleKebab: opts.mapperModuleKebab });
   const constName = resolveApplicationMappersBarrelConstName(base, opts.defaultConstName);
-  return formatApplicationMappersIndexBarrel([...byKebab.values()], constName);
+  return formatApplicationMappersIndexBarrel([...byModule.values()], constName);
 }
