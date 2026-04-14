@@ -13,7 +13,7 @@ const repoRoot = getRepoRoot();
 export default function registerFeatureApplicationEntityToDtoMapperGenerator(plop: NodePlopAPI) {
   plop.setGenerator("feature-application-entity-to-dto-mapper", {
     description:
-      "DTO type alias (`Plain<Entity>`) + mapXToDTO + test from a domain entity (@features/*-application). Use overwrite to re-sync; default refuses if files already exist.",
+      "DTO type alias (`Plain<Entity>`) + mapXToDTO + test from a domain entity (@features/*-application). Updates `mappers/index.ts` with a `{FeaturePascal}Mappers` barrel object. Use overwrite to re-sync; default refuses if files already exist.",
     prompts: [
       {
         type: "list",

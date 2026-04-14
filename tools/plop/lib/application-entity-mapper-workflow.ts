@@ -1,10 +1,17 @@
 import fs from "node:fs";
 import path from "node:path";
 import type { ActionType } from "node-plop";
+import {
+  applicationMappersBarrelConstName,
+  syncApplicationMappersIndexBarrel,
+} from "./application-mappers-index-barrel.ts";
 import { toKebabCase } from "./casing.ts";
 import { generateApplicationEntityMapperSources } from "./entity-to-dto-map-codegen.ts";
 import { ensureRepoApplicationPackageSlice } from "./ensure-repo-application-package-slice.ts";
-import { applicationPackageRelFromDomainRel } from "./repo-application-from-domain.ts";
+import {
+  applicationPackageRelFromDomainRel,
+  featureSegmentFromApplicationPackageRel,
+} from "./repo-application-from-domain.ts";
 import { readDomainPackageJsonName } from "./repo-domain-packages.ts";
 import { resolveWorkspaceDependencyVersion } from "./workspace-dependency-version.ts";
 
@@ -147,13 +154,12 @@ export function appendApplicationEntityMapperWorkflow(
     type: "modify",
     path: `../../${applicationRel}/mappers/index.ts`,
     transform: (file: string) => {
-      const cleaned = file.replace(/^export\s*{\s*}\s*;?\s*$/m, "").trimEnd();
-      const exportLine = `export * from './${entityKebab}.mapper';`;
-      if (cleaned.includes(exportLine)) {
-        return `${cleaned}\n`;
-      }
-      const base = cleaned.length > 0 ? `${cleaned}\n` : "";
-      return `${base}${exportLine}\n`;
+      const featureSeg = featureSegmentFromApplicationPackageRel(applicationRel);
+      const defaultConstName = applicationMappersBarrelConstName(featureSeg);
+      return syncApplicationMappersIndexBarrel(file, {
+        defaultConstName,
+        entityKebab,
+      });
     },
   });
 }
