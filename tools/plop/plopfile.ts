@@ -1,6 +1,7 @@
 import type { NodePlopAPI } from "node-plop";
 import { getRepoRoot } from "./lib/repo-root.ts";
 import { resolveWorkspaceDependencyVersion } from "./lib/workspace-dependency-version.ts";
+import registerScaffoldGenerator from "./generators/scaffold.ts";
 import registerFeatureCoreGenerator from "./generators/feature-core.ts";
 import registerFeatureDomainEntityGenerator from "./generators/feature-domain-entity.ts";
 import registerFeatureDomainValueObjectGenerator from "./generators/feature-domain-value-object.ts";
@@ -31,6 +32,7 @@ export default function (plop: NodePlopAPI) {
     }
     return resolved;
   });
+  registerScaffoldGenerator(plop);
   registerFeatureCoreGenerator(plop);
   registerFeatureDomainEntityGenerator(plop);
   registerFeatureDomainValueObjectGenerator(plop);
