@@ -1,0 +1,12 @@
+import { DomainError } from "@features/shared-domain/errors";
+
+export class {{notFoundClassName}} extends DomainError {
+  constructor(public readonly id: string) {
+    super({
+      code: "{{notFoundCode}}",
+      message: `{{entityPascal}} ${id} not found`,
+      metadata: { id },
+      cause: undefined,
+    });
+  }
+}

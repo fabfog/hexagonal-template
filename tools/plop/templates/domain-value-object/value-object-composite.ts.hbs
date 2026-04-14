@@ -1,0 +1,30 @@
+import { z } from 'zod';
+import { deepEqual, SERIALIZE, toPlain, type Plain } from '@features/shared-domain/utils';
+
+export const {{pascalCase valueObjectName}}Schema = z.object({
+  // TODO: add fields
+});
+
+export type {{pascalCase valueObjectName}}Props = z.infer<
+  typeof {{pascalCase valueObjectName}}Schema
+>;
+
+export class {{pascalCase valueObjectName}} {
+  private readonly props: {{pascalCase valueObjectName}}Props;
+
+  constructor(props: {{pascalCase valueObjectName}}Props) {
+    this.props = {{pascalCase valueObjectName}}Schema.parse(props);
+  }
+
+  getProps(): Readonly<{{pascalCase valueObjectName}}Props> {
+    return this.props;
+  }
+
+  equals(other: {{pascalCase valueObjectName}}): boolean {
+    return deepEqual(this.props, other.props);
+  }
+
+  [SERIALIZE](): Plain<{{pascalCase valueObjectName}}Props> {
+    return toPlain(this.getProps());
+  }
+}

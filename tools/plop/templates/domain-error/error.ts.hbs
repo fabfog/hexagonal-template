@@ -1,0 +1,12 @@
+import { DomainError } from "@features/shared-domain/errors";
+
+export class {{pascalCase errorName}}Error extends DomainError {
+  constructor() {
+    super({
+      code: "{{constantCase errorName}}",
+      message: "{{sentenceCase errorName}}",
+      metadata: {},
+      cause: undefined,
+    });
+  }
+}

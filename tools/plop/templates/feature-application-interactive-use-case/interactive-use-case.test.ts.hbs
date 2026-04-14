@@ -1,0 +1,23 @@
+import { describe, it } from "vitest";
+import type { {{pascalCase useCaseName}}InteractionPort } from "../ports/{{kebabCase useCaseName}}.interaction.port";
+import {
+  {{pascalCase useCaseName}}InteractiveUseCase,
+  type {{pascalCase useCaseName}}InteractiveUseCaseDependencies,
+} from "./{{kebabCase useCaseName}}.interactive.use-case";
+
+// Mock dependencies when implementing tests
+const deps: {{pascalCase useCaseName}}InteractiveUseCaseDependencies = {};
+
+const interactionPort: {{pascalCase useCaseName}}InteractionPort = {};
+
+/**
+ * Deliberately failing scaffold: replace this file after implementing
+ * `./{{kebabCase useCaseName}}.interactive.use-case.ts` and the interaction port.
+ */
+describe("{{pascalCase useCaseName}}InteractiveUseCase", () => {
+  it("fails until you implement real interactive use-case tests", () => {
+    throw new Error(
+      "Generator scaffold: implement {{pascalCase useCaseName}}InteractiveUseCase and port stubs, then delete this test and add behaviour-driven cases.",
+    );
+  });
+});

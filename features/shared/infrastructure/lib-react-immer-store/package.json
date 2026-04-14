@@ -1,0 +1,23 @@
+{
+  "name": "@features/shared-infra-lib-react-immer-store",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./isomorphic/index.ts",
+    "./client": "./client/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@types/react": "^19.2.14",
+    "vitest": "^4.1.0"
+  },
+  "dependencies": {
+    "immer": "^11.1.4",
+    "react": "^19.2.4"
+  }
+}

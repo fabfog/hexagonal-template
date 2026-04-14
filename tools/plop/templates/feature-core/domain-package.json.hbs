@@ -1,0 +1,19 @@
+{
+  "name": "@features/{{kebabCase featureName}}-domain",
+  "version": "1.0.0",
+  "description": "Domain layer for feature {{pascalCase featureName}}",
+  "private": true,
+  "type": "module",
+  "exports": {},
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@features/shared-domain": "workspace:*"
+  },
+  "devDependencies": {
+    "vitest": "{{workspaceDependencyVersion "vitest"}}"
+  }
+}

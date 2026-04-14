@@ -1,0 +1,21 @@
+import type { {{pascalCase useCaseName}}InteractionPort } from '../ports/{{kebabCase useCaseName}}.interaction.port';
+
+export interface {{pascalCase useCaseName}}InteractiveUseCaseDependencies {
+
+}
+
+export class {{pascalCase useCaseName}}InteractiveUseCase {
+  constructor(
+    private readonly deps: {{pascalCase useCaseName}}InteractiveUseCaseDependencies,
+  ) {}
+
+  async execute(interactionPort: {{pascalCase useCaseName}}InteractionPort): Promise<void> {
+    try {
+      // TODO: implement interactive use case
+
+      // TODO dispatch result mapped to dto via interactionPort
+    } catch (e) {
+      // TODO dispatch error mapped to dto via interactionPort
+    }
+  }
+}

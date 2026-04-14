@@ -1,0 +1,19 @@
+{
+  "name": "@features/shared-domain",
+  "version": "1.0.0",
+  "description": "Domain layer for feature Shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./utils": "./utils/index.ts",
+    "./errors": "./errors/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
+  }
+}

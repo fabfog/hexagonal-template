@@ -1,0 +1,20 @@
+import { describe, it } from "vitest";
+import {
+  {{pascalCase useCaseName}}UseCase,
+  type {{pascalCase useCaseName}}UseCaseDependencies,
+} from "./{{kebabCase useCaseName}}.use-case";
+
+// Mock dependencies when implementing tests
+const deps: {{pascalCase useCaseName}}UseCaseDependencies = {};
+
+/**
+ * Deliberately failing scaffold: replace this file after implementing
+ * `./{{kebabCase useCaseName}}.use-case.ts`.
+ */
+describe("{{pascalCase useCaseName}}UseCase", () => {
+  it("fails until you implement real use-case tests", () => {
+    throw new Error(
+      "Generator scaffold: implement {{pascalCase useCaseName}}UseCase (deps + execute), then delete this test and add behaviour-driven cases.",
+    );
+  });
+});

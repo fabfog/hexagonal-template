@@ -1,0 +1,16 @@
+{
+  "name": "@features/shared-infra-lib-http",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix"
+  },
+  "dependencies": {
+    "ky": "^1.14.0"
+  }
+}

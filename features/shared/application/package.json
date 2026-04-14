@@ -1,0 +1,23 @@
+{
+  "name": "@features/shared-application",
+  "version": "1.0.0",
+  "description": "Application layer for feature Shared",
+  "private": true,
+  "type": "module",
+  "exports": {
+    "./dtos": "./dtos/index.ts",
+    "./mappers": "./mappers/index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@features/shared-domain": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "vitest": "^4.1.0"
+  }
+}

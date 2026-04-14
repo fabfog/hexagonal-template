@@ -1,0 +1,21 @@
+{
+  "name": "@features/{{kebabCase featureName}}-application",
+  "version": "1.0.0",
+  "description": "Application layer for feature {{pascalCase featureName}}",
+  "private": true,
+  "type": "module",
+  "exports": {},
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "@features/{{kebabCase featureName}}-domain": "workspace:*",
+    "@features/shared-application": "workspace:*",
+    "zod": "{{workspaceDependencyVersion "zod"}}"
+  },
+  "devDependencies": {
+    "vitest": "{{workspaceDependencyVersion "vitest"}}"
+  }
+}

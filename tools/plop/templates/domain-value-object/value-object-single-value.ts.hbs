@@ -1,0 +1,29 @@
+import { z } from 'zod';
+import { SERIALIZE } from '@features/shared-domain/utils';
+
+export const {{pascalCase valueObjectName}}Schema = {{{singleValueSchema}}};
+
+export type {{pascalCase valueObjectName}}Input = z.infer<
+  typeof {{pascalCase valueObjectName}}Schema
+>;
+
+export class {{pascalCase valueObjectName}} {
+  private readonly _value: {{singleValuePrimitive}};
+
+  constructor(input: {{pascalCase valueObjectName}}Input) {
+    const parsed = {{pascalCase valueObjectName}}Schema.parse(input);
+    this._value = parsed;
+  }
+
+  get value(): {{singleValuePrimitive}} {
+    return this._value;
+  }
+
+  [SERIALIZE](): {{pascalCase valueObjectName}}Input {
+    return this._value;
+  }
+
+  equals(other: {{pascalCase valueObjectName}}): boolean {
+    {{{singleValueEqualsBody}}}
+  }
+}

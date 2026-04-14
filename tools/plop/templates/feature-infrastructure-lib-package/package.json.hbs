@@ -1,0 +1,18 @@
+{
+  "name": "@features/{{featureKebab}}-infra-lib-{{libKebab}}",
+  "version": "1.0.0",
+  "description": "Infrastructure library (lib-{{libKebab}}): generic utilities (HTTP helpers, DataLoader, etc.). No persistence or service-specific adapters — use feature-scoped driven-* for those.",
+  "private": true,
+  "type": "module",
+  "exports": {
+    ".": "./index.ts"
+  },
+  "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "vitest": "{{workspaceDependencyVersion "vitest"}}"
+  }
+}

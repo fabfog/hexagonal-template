@@ -1,0 +1,53 @@
+import { z } from 'zod';
+import { SERIALIZE, toPlain, type Plain } from '@features/shared-domain/utils';
+
+import {
+  {{pascalCase entityName}}Id,
+  type {{pascalCase entityName}}IdInput,
+} from '../value-objects/{{kebabCase entityName}}-id.vo';
+
+export const {{pascalCase entityName}}Schema = z.object({
+  // TODO: add fields (feature-domain-entity-add-vo-field; entity id is separate)
+});
+
+export type {{pascalCase entityName}}DataProps = z.infer<
+  typeof {{pascalCase entityName}}Schema
+>;
+
+export type {{pascalCase entityName}}Props = { id: {{pascalCase entityName}}Id } &
+  {{pascalCase entityName}}DataProps;
+
+/** Constructor input: pass a primitive id (or an existing id VO). */
+export type {{pascalCase entityName}}CreateProps = {
+  id: {{pascalCase entityName}}Id | {{pascalCase entityName}}IdInput;
+} & {{pascalCase entityName}}DataProps;
+
+export class {{pascalCase entityName}}Entity {
+  private readonly _id: {{pascalCase entityName}}Id;
+  private readonly _props: {{pascalCase entityName}}DataProps;
+
+  constructor({ id, ...data }: {{pascalCase entityName}}CreateProps) {
+    this._id = id instanceof {{pascalCase entityName}}Id ? id : new {{pascalCase entityName}}Id(id);
+    this._props = {{pascalCase entityName}}Schema.parse(data);
+  }
+
+  /**
+   * Fast access to the id string value (stored internally as a VO).
+   * Useful for repositories / mappers that only need the id.
+   */
+  get id(): string {
+    return this._id.value;
+  }
+
+  /**
+   * Fast access to the entity data props (excluding the `id` VO).
+   */
+  get props(): Readonly<{{pascalCase entityName}}DataProps> {
+    return this._props;
+  }
+
+  /** Plain snapshot for mappers / APIs (nested VOs are flattened via `[SERIALIZE]()`). */
+  [SERIALIZE](): Plain<{{pascalCase entityName}}Props> {
+    return toPlain({ id: this._id, ...this._props });
+  }
+}

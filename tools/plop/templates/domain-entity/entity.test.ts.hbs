@@ -1,0 +1,16 @@
+import { describe, it } from "vitest";
+
+import { {{pascalCase entityName}}Entity } from "./{{kebabCase entityName}}.entity";
+import { {{pascalCase entityName}}Id } from "../value-objects/{{kebabCase entityName}}-id.vo";
+
+/**
+ * Deliberately failing scaffold: replace this file with real tests for
+ * `./{{kebabCase entityName}}.entity.ts` once behaviour matters.
+ */
+describe("{{pascalCase entityName}}Entity", () => {
+  it("fails until you implement meaningful tests", () => {
+    throw new Error(
+      "Generator scaffold: delete this test and assert rules/invariants for {{pascalCase entityName}}Entity.",
+    );
+  });
+});

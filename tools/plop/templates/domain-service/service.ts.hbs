@@ -1,0 +1,18 @@
+{{#each entityImportLines}}
+import { {{entityClasses}} } from '{{importPath}}';
+{{/each}}
+
+export interface {{pascalCase serviceName}}ServiceInput {
+  // TODO: define input fields for execute()
+}
+
+export interface {{pascalCase serviceName}}ServiceOutput {
+  // TODO: define return shape of execute()
+}
+
+export class {{pascalCase serviceName}}Service {
+  execute(input: {{pascalCase serviceName}}ServiceInput): {{pascalCase serviceName}}ServiceOutput {
+    // TODO: implement using the imported entity types
+    throw new Error("Not implemented");
+  }
+}

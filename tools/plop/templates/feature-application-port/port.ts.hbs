@@ -1,0 +1,12 @@
+{{#if isRepositoryPort}}
+import type { {{getByIdReturnType}} } from "{{domainNpmName}}/entities";
+import type { {{entityPascal}}Id } from "{{domainNpmName}}/value-objects";
+
+{{/if}}
+export interface {{interfaceName}} {
+{{#if isRepositoryPort}}
+  getById(id: {{entityPascal}}Id): Promise<{{getByIdReturnType}}>;
+{{else}}
+  // TODO: define port contract
+{{/if}}
+}
