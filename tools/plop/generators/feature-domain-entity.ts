@@ -17,7 +17,7 @@ const repoRoot = getRepoRoot();
 export default function registerFeatureDomainEntityGenerator(plop: NodePlopAPI) {
   plop.setGenerator("feature-domain-entity", {
     description:
-      "Add a domain entity (+ Id value object); optionally scaffold application DTO + mapper + test (`Plain` via `[SERIALIZE]()` when sibling application exists).",
+      "Add a domain entity (+ Id value object); constructor accepts Zod **input** for data fields (+ polymorphic id). Optionally scaffold application DTO + mapper + test (`Plain` via `[SERIALIZE]()` when sibling application exists). VO-backed fields use each VO's `*Schema` in the entity object (no VO instances in props).",
     prompts: [
       {
         type: "list",

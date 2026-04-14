@@ -17,10 +17,12 @@ export type {{pascalCase entityName}}DataProps = z.infer<
 export type {{pascalCase entityName}}Props = { id: {{pascalCase entityName}}Id } &
   {{pascalCase entityName}}DataProps;
 
-/** Constructor input: pass a primitive id (or an existing id VO). */
+/**
+ * Constructor input: Zod **input** for data fields (same shapes as the entity `z.object` — use VO `.value` / plain snapshots where you already hold a VO) plus polymorphic `id`.
+ */
 export type {{pascalCase entityName}}CreateProps = {
   id: {{pascalCase entityName}}Id | {{pascalCase entityName}}IdInput;
-} & {{pascalCase entityName}}DataProps;
+} & z.input<typeof {{pascalCase entityName}}Schema>;
 
 export class {{pascalCase entityName}}Entity {
   private readonly _id: {{pascalCase entityName}}Id;

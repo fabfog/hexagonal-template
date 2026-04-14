@@ -17,7 +17,7 @@ const repoRoot = getRepoRoot();
 export default function registerFeatureDomainEntityAddVoFieldGenerator(plop: NodePlopAPI) {
   plop.setGenerator("feature-domain-entity-add-vo-field", {
     description:
-      "Add one Zod + VO-backed property to an existing domain entity (VOs from this package and/or @features/shared-domain only)",
+      "Add one entity property wired to the VO's Zod schema only (existing VO → pass .value / plain input; VOs from this package and/or @features/shared-domain only)",
     prompts: [
       {
         type: "list",

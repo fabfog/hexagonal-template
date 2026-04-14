@@ -2,16 +2,12 @@ export interface {{pascalCase useCaseName}}UseCaseDependencies {
 
 }
 
-export interface {{pascalCase useCaseName}}UseCaseReturn {
-
-}
-
 export class {{pascalCase useCaseName}}UseCase {
   constructor(
     private readonly deps: {{pascalCase useCaseName}}UseCaseDependencies
   ) {}
 
-  async execute(): Promise<{{pascalCase useCaseName}}UseCaseReturn> {
+  async execute() {
     // TODO: implement use case
 
     // TODO: return result as DTO (anemic data)

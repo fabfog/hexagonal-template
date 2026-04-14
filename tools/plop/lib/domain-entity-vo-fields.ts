@@ -191,7 +191,7 @@ export function appendVoFieldToEntitySource(
   if (propNeedle.test(body)) {
     throw new Error(`Property "${field.prop}" already exists in ${schemaConst}.`);
   }
-  const fieldLine = `  ${field.prop}: ${field.voClass}Schema.transform((x) => new ${field.voClass}(x))`;
+  const fieldLine = `  ${field.prop}: ${field.voClass}Schema`;
   const hasSubstantiveField = /^\s*[a-zA-Z_][a-zA-Z0-9_]*\s*:/m.test(body);
   let newInner: string;
   if (!hasSubstantiveField) {
@@ -217,7 +217,7 @@ export function appendVoFieldToEntitySource(
     for (const a of additions) set.add(a);
     return [...set].sort().join(", ");
   };
-  const addSymbols = [field.voClass, `${field.voClass}Schema`];
+  const addSymbols = [`${field.voClass}Schema`];
 
   if (field.source === "shared") {
     const m = next.match(sharedImportRe);
