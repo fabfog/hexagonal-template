@@ -138,7 +138,7 @@ Thanks to the root `eslint.config.cjs`, you don’t need a separate ESLint confi
 
 ## Code generators (Plop)
 
-This repo uses [Plop](https://plopjs.com) to scaffold **`features/<slug>/…`** workspace packages: domain, application, infrastructure, and feature-local composition. The plopfile is `tools/plop/plopfile.ts` (run via `pnpm plop`).
+This repo uses [Plop](https://plopjs.com) to scaffold **`features/<slug>/…`** workspace packages: domain, application, infrastructure, and feature-local composition. Generators are split by layer under `tools/plop/plopfile-<layer>.ts`; `pnpm plop` opens a menu that runs Plop with the chosen plopfile.
 
 - **How to run**
 

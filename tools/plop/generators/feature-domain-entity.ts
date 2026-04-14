@@ -1,9 +1,13 @@
+import fs from "node:fs";
+import path from "node:path";
 import type { ActionType, NodePlopAPI } from "node-plop";
 import type { Answers } from "inquirer";
+import { appendApplicationEntityMapperWorkflow } from "../lib/application-entity-mapper-workflow.ts";
 import { appendDomainValueObjectActionsForRepoPackage } from "../lib/append-domain-value-object.ts";
 import { appendEnsureEntityNotFoundErrorActionsForRepoPackage } from "../lib/entity-not-found-error.ts";
 import { ensureRepoDomainPackageSlice } from "../lib/ensure-domain-package-slice.ts";
 import { ensureZodDependencyInPackage } from "../lib/ensure-zod-in-package.ts";
+import { applicationPackageRelFromDomainRel } from "../lib/repo-application-from-domain.ts";
 import { getRepoDomainPackageChoices } from "../lib/repo-domain-packages.ts";
 import { getRepoRoot } from "../lib/repo-root.ts";
 import { toKebabCase, toPascalCase } from "../lib/casing.ts";
@@ -13,7 +17,7 @@ const repoRoot = getRepoRoot();
 export default function registerFeatureDomainEntityGenerator(plop: NodePlopAPI) {
   plop.setGenerator("feature-domain-entity", {
     description:
-      "Add a domain entity (+ Id value object) under an existing @features/*-domain package (features/*/domain/)",
+      "Add a domain entity (+ Id value object); optionally scaffold application DTO + mapper + test (`Plain` via `[SERIALIZE]()` when sibling application exists).",
     prompts: [
       {
         type: "list",
@@ -46,10 +50,27 @@ export default function registerFeatureDomainEntityGenerator(plop: NodePlopAPI) 
           return `Also create ${name}NotFoundError associated with ${name}?`;
         },
       },
+      {
+        type: "confirm",
+        name: "addApplicationMapper",
+        default: true,
+        when: (answers: Answers) => {
+          const rel = String(answers.domainPackageRel ?? "");
+          try {
+            const applicationRel = applicationPackageRelFromDomainRel(rel);
+            const appPkgJson = path.join(repoRoot, ...applicationRel.split("/"), "package.json");
+            return fs.existsSync(appPkgJson);
+          } catch {
+            return false;
+          }
+        },
+        message:
+          "Also scaffold application DTO + mapXToDTO + mapper test for this entity? (Uses `entity[SERIALIZE]()`; needs sibling application package.)",
+      },
     ],
     actions: (data?: Answers) => {
       if (!data) return [];
-      const { domainPackageRel, entityName, addNotFoundError } = data;
+      const { domainPackageRel, entityName, addNotFoundError, addApplicationMapper } = data;
       const rel = String(domainPackageRel ?? "");
       const entityPascal = toPascalCase(String(entityName ?? "").trim());
       const kebab = toKebabCase(entityName);
@@ -103,6 +124,15 @@ export default function registerFeatureDomainEntityGenerator(plop: NodePlopAPI) 
           repoRoot,
           domainPackageRel: rel,
           entityPascal,
+        });
+      }
+
+      if (addApplicationMapper) {
+        appendApplicationEntityMapperWorkflow(actions, {
+          repoRoot,
+          domainPackageRel: rel,
+          entityName: String(entityName ?? "").trim(),
+          allowOverwrite: true,
         });
       }
 

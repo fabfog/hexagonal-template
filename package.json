@@ -4,7 +4,7 @@
   "scripts": {
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
-    "plop": "tsx ./node_modules/plop/bin/plop.js --plopfile tools/plop/plopfile.ts scaffold",
+    "plop": "node ./node_modules/tsx/dist/cli.mjs tools/plop/plop-menu.ts",
     "demo:scaffold": "tsx tools/demo/run-demo.ts",
     "demo:clear": "tsx tools/demo/clear-demo.ts",
     "format": "prettier --write .",

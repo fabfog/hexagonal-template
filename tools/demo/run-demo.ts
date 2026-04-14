@@ -9,7 +9,7 @@
  * raw-to-domain mapper, standard + interactive use cases, a manual patch to
  * `AcknowledgePlopDemoInteractionPort` plus an **Immer** adapter on `driven-demo-clock`, infra lib
  * package, add use-case port dependency, and non-interactive composition wiring for
- * `RecordLineItem` (26 steps; exercises every generator in `tools/plop/plopfile.ts`).
+ * `RecordLineItem` (26 steps; exercises every generator across the layer plopfiles in `tools/plop/`).
  *
  * Usage (from repo root):
  *   pnpm demo:scaffold
@@ -21,10 +21,16 @@ import fs from "node:fs";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
 import nodePlop from "node-plop";
+import { applyCommonPlopSetup } from "../plop/plop-register-common.ts";
+import { registerApplicationGenerators } from "../plop/plopfile-application.ts";
+import { registerCompositionGenerators } from "../plop/plopfile-composition.ts";
+import { registerDomainGenerators } from "../plop/plopfile-domain.ts";
+import { registerFeatureGenerators } from "../plop/plopfile-feature.ts";
+import { registerInfrastructureGenerators } from "../plop/plopfile-infrastructure.ts";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const repoRoot = path.resolve(__dirname, "..", "..");
-const plopfileAbs = path.join(repoRoot, "tools/plop/plopfile.ts");
+const toolsPlopDir = path.join(repoRoot, "tools", "plop");
 
 const DEMO_FEATURE_NAME = "Plop Demo";
 const DEMO_DOMAIN_REL = "features/plop-demo/domain";
@@ -64,8 +70,15 @@ async function main(): Promise<void> {
     console.log("Removed existing features/plop-demo (--force).");
   }
 
-  console.log("Loading plopfile…");
-  const plop = await nodePlop(plopfileAbs);
+  console.log("Loading Plop (all layer generators)…");
+  const plop = await nodePlop("");
+  plop.setPlopfilePath(toolsPlopDir);
+  applyCommonPlopSetup(plop);
+  registerFeatureGenerators(plop);
+  registerDomainGenerators(plop);
+  registerApplicationGenerators(plop);
+  registerInfrastructureGenerators(plop);
+  registerCompositionGenerators(plop);
 
   console.log("\n1/26 feature-core …");
   await runGenerator(plop, "feature-core", {
