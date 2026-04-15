@@ -14,7 +14,7 @@
  * Usage (from repo root):
  *   pnpm demo:scaffold
  *
- * Re-run: remove `features/plop-demo` or pass `--force` to delete it first.
+ * Re-run: remove `features/plop-demo` + `apps/demo-web` or pass `--force` to delete and recreate.
  */
 import { spawnSync } from "node:child_process";
 import fs from "node:fs";
@@ -39,6 +39,44 @@ const DEMO_DRIVEN_LINE_ITEM_REL = "features/plop-demo/infrastructure/driven-line
 const DEMO_DRIVEN_DEMO_CLOCK_REL = "features/plop-demo/infrastructure/driven-demo-clock";
 const DEMO_COMPOSITION_WEB_REL = "features/plop-demo/composition/web";
 const demoFeatureDir = path.join(repoRoot, "features", "plop-demo");
+const demoAppDir = path.join(repoRoot, "apps", "demo-web");
+
+function ensureDemoAppPackage() {
+  fs.mkdirSync(demoAppDir, { recursive: true });
+  const demoAppPackageJson = {
+    name: "@apps/demo-web",
+    version: "1.0.0",
+    description: "Minimal app package for boundary rule checks",
+    private: true,
+    type: "module",
+    exports: {
+      ".": "./index.ts",
+    },
+    scripts: {
+      lint: "eslint .",
+      "lint:fix": "eslint . --fix",
+      test: "vitest run",
+    },
+    devDependencies: {
+      vitest: "^4.1.0",
+    },
+  };
+  const tsconfig = {
+    $schema: "https://json.schemastore.org/tsconfig",
+    extends: "../../tsconfig.repo.json",
+    include: ["**/*.ts"],
+  };
+  fs.writeFileSync(
+    path.join(demoAppDir, "package.json"),
+    `${JSON.stringify(demoAppPackageJson, null, 2)}\n`,
+    "utf8"
+  );
+  fs.writeFileSync(
+    path.join(demoAppDir, "tsconfig.json"),
+    `${JSON.stringify(tsconfig, null, 2)}\n`
+  );
+  fs.writeFileSync(path.join(demoAppDir, "index.ts"), "export {};\n", "utf8");
+}
 
 async function runGenerator(
   plop: Awaited<ReturnType<typeof nodePlop>>,
@@ -59,16 +97,20 @@ async function runGenerator(
 
 async function main(): Promise<void> {
   const force = process.argv.includes("--force");
-  if (fs.existsSync(demoFeatureDir)) {
+  if (fs.existsSync(demoFeatureDir) || fs.existsSync(demoAppDir)) {
     if (!force) {
       console.error(
-        "Demo folder features/plop-demo already exists. Remove it or run with --force to delete and recreate."
+        "Demo paths already exist (`features/plop-demo` and/or `apps/demo-web`). Remove them or run with --force to delete and recreate."
       );
       process.exit(1);
     }
     fs.rmSync(demoFeatureDir, { recursive: true, force: true });
-    console.log("Removed existing features/plop-demo (--force).");
+    fs.rmSync(demoAppDir, { recursive: true, force: true });
+    console.log("Removed existing demo paths (--force): features/plop-demo, apps/demo-web.");
   }
+
+  ensureDemoAppPackage();
+  console.log("Prepared apps/demo-web minimal package.");
 
   console.log("Loading Plop (all layer generators)…");
   const plop = await nodePlop("");

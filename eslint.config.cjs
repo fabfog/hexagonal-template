@@ -8,7 +8,7 @@ const baseConfig = require("@features/config-eslint").default;
       "lint:fix": "eslint . --fix",
 
   2. add eslint.config.cjs configuration in the specific app/package
-  // apps/some-package/eslint.config.cjs
+  // path/to/some-package/eslint.config.cjs
   const baseConfig = require("@features/config-eslint").default;
 
   module.exports = [
@@ -23,6 +23,6 @@ const baseConfig = require("@features/config-eslint").default;
  */
 
 module.exports = [
-  // { ignores: ["apps/some-package/**"] }, // to exclude from root config
+  // { ignores: ["path/to/some-package/**"] }, // to exclude from root config
   ...baseConfig,
 ];
